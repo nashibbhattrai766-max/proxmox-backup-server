@@ -1,6 +1,6 @@
 # Proxmox Backup Server on a Mini PC
 
-A dedicated **Proxmox Backup Server (PBS) 4** built on a second-hand Lenovo ThinkCentre M700 Tiny with a USB hard drive as the datastore. It backs up every VM and container in my [Proxmox cluster](https://github.com/useruser766-max/proxmox-cluster) every night, plus the NAS photo library, and it also runs the cluster's **QDevice** tie-breaker and the **secondary DNS server**.
+A dedicated **Proxmox Backup Server (PBS) 4** built on a second-hand Lenovo ThinkCentre M700 Tiny with a USB hard drive as the datastore. It backs up every VM and container in my [Proxmox cluster](https://github.com/nashibbhattrai766-max/proxmox-cluster) every night, plus the NAS photo library, and it also runs the cluster's **QDevice** tie-breaker and the **secondary DNS server**.
 
 **Result:** the nightly backup of all 8 guests went from long full-copy runs that loaded the hypervisor heavily to **about 12 minutes**, every backup is verified weekly, and old backups are cleaned up automatically.
 
@@ -172,9 +172,9 @@ pvecm status          # Expected votes: 3, Total votes: 3, "Qdevice" listed
 ```
 Now either Proxmox node can go down and the other keeps quorum.
 
-**Docker for the secondary Pi-hole:** `apt install docker.io`. On the Proxmox kernel, containers need `--security-opt apparmor=unconfined`. The full DNS setup is in [pihole-ha-dns](https://github.com/useruser766-max/pihole-ha-dns).
+**Docker for the secondary Pi-hole:** `apt install docker.io`. On the Proxmox kernel, containers need `--security-opt apparmor=unconfined`. The full DNS setup is in [pihole-ha-dns](https://github.com/nashibbhattrai766-max/pihole-ha-dns).
 
-**Photo library backups from the NAS** use `proxmox-backup-client` in a small container on the NAS, with the `nas@pbs` user. See [immich-pbs-backup](https://github.com/useruser766-max/immich-pbs-backup).
+**Photo library backups from the NAS** use `proxmox-backup-client` in a small container on the NAS, with the `nas@pbs` user. See [immich-pbs-backup](https://github.com/nashibbhattrai766-max/immich-pbs-backup).
 
 ## 10. Build: monitoring and alerts
 
@@ -188,7 +188,7 @@ Run [`scripts/pbs-monitoring-setup.sh`](scripts/pbs-monitoring-setup.sh) on PBS.
 
    and writes them to `/var/lib/prometheus/node-exporter/pbs.prom`.
 
-**Prometheus** scrapes that file through node-exporter. **Zabbix** reads the same file with one `vfs.file.contents` item and splits it into separate values using dependent items with JavaScript preprocessing ([zabbix-pbs.sh](https://github.com/useruser766-max/zabbix-monitoring)).
+**Prometheus** scrapes that file through node-exporter. **Zabbix** reads the same file with one `vfs.file.contents` item and splits it into separate values using dependent items with JavaScript preprocessing ([zabbix-pbs.sh](https://github.com/nashibbhattrai766-max/zabbix-monitoring)).
 
 Alerts sent to my phone:
 | Alert | Condition |
@@ -199,7 +199,7 @@ Alerts sent to my phone:
 | QDevice down | qnetd not running (High) |
 | Status collector stopped | metrics file older than 20 min |
 
-The Grafana **Backups** screen shows "✓ ALL BACKED UP · VERIFIED", or a warning, plus the age of every guest's last backup ([grafana-rack-dashboards](https://github.com/useruser766-max/grafana-rack-dashboards)).
+The Grafana **Backups** screen shows "✓ ALL BACKED UP · VERIFIED", or a warning, plus the age of every guest's last backup ([grafana-rack-dashboards](https://github.com/nashibbhattrai766-max/grafana-rack-dashboards)).
 
 > Debian's node-exporter excludes `/mnt` from filesystem metrics by default. Override `--collector.filesystem.mount-points-exclude` in `/etc/default/prometheus-node-exporter` to see the datastore's free space.
 
@@ -219,7 +219,7 @@ The Grafana **Backups** screen shows "✓ ALL BACKED UP · VERIFIED", or a warni
 ## 12. Running it day to day
 
 - **Nothing to do** in normal operation: backups, prune, GC and verify all run on schedule, and alerts arrive if something fails.
-- **Updates:** *Administration → Updates* monthly (or from [Proxmox Datacenter Manager](https://github.com/useruser766-max/proxmox-datacenter-manager)).
+- **Updates:** *Administration → Updates* monthly (or from [Proxmox Datacenter Manager](https://github.com/nashibbhattrai766-max/proxmox-datacenter-manager)).
 - **Space:** keep the datastore under ~80 %. GC needs headroom.
 - **After maintenance** that fully stops and starts a VM, expect that VM's next backup to take longer (see below).
 
