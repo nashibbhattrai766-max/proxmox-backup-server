@@ -2,6 +2,8 @@
 
 A dedicated **Proxmox Backup Server (PBS) 4** built on a second-hand Lenovo ThinkCentre M700 Tiny with a USB hard drive as the datastore. It backs up every VM and container in my [Proxmox cluster](https://github.com/nashibbhattrai766-max/proxmox-cluster) every night, plus the NAS photo library, and it also runs the cluster's **QDevice** tie-breaker and the **secondary DNS server**.
 
+![PBS dashboard](images/pbs-dashboard.png)
+
 **Result:** the nightly backup of all 8 guests went from long full-copy runs that loaded the hypervisor heavily to **about 12 minutes**, every backup is verified weekly, and old backups are cleaned up automatically.
 
 ---
@@ -144,6 +146,8 @@ Leave retention **empty** in the job. Retention is handled centrally by the PBS 
 
 **Run the first backup by hand** (*Backup → select job → Run now*). The first run is a full copy and takes a while; every run after that only sends changed blocks.
 
+![The two backup jobs in Proxmox VE](images/pve-backup-jobs.png)
+
 ## 8. Build: retention, cleanup and verification
 
 These three jobs keep the datastore healthy without anyone touching it. The script in step 6 creates them:
@@ -155,6 +159,10 @@ These three jobs keep the datastore healthy without anyone touching it. The scri
 | **Verify** | Sun 07:00 | skip verified, re-verify after 30 days | Reads every chunk and checks its checksum. New backups are checked within a week, and older ones are re-checked monthly to catch bit rot on the disk. |
 
 In the GUI these are under *Datastore → backups → Prune & GC Jobs* and *Verify Jobs*.
+
+![Prune and garbage-collection jobs](images/pbs-prune-gc.png)
+
+![Weekly verify job](images/pbs-verify-job.png)
 
 ## 9. Build: extra roles (QDevice, DNS)
 
@@ -215,6 +223,14 @@ The Grafana **Backups** screen shows "✓ ALL BACKED UP · VERIFIED", or a warni
 | **Restore** | *Datastore → Content → snapshot → File Restore*, or restore a VM to a **new VMID** on a node | files open, VM boots |
 
 > **Test a restore.** A backup you've never restored is a hope, not a backup. Restoring a small container to a new ID every few months takes five minutes.
+
+**After a week:** every guest has 7 daily snapshots, all verified, and the photo library has its own backup group owned by the NAS user.
+
+![Datastore content after a week](images/pbs-content.png)
+
+The backup server is also visible next to the cluster in Proxmox Datacenter Manager:
+
+![PBS in Datacenter Manager](images/pdm-pbs.png)
 
 ## 12. Running it day to day
 
